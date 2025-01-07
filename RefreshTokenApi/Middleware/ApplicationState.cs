@@ -17,13 +17,13 @@ namespace RefreshTokenApi.Middleware
             _dapperConfig = new DapperConfiguration();
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context , IAccountService _accountService)
         {
             try
             {
                 if(context.Request.Path != "/api/Account/Login")
                 {
-                    var checkTokenExpiryTime = await CheckRefreshToken(context);
+                    var checkTokenExpiryTime = await CheckRefreshToken(context , _accountService);
                 }
          
                 await _next(context);
@@ -34,7 +34,7 @@ namespace RefreshTokenApi.Middleware
             }
         }
 
-        private async Task<bool> CheckRefreshToken(HttpContext context)
+        private async Task<bool> CheckRefreshToken(HttpContext context , IAccountService _accountService)
         {
             if (context.User?.Claims?.FirstOrDefault() != null)
             {
@@ -58,6 +58,8 @@ namespace RefreshTokenApi.Middleware
                                 AccessToken = dbUser.AccessToken,
                                 RefreshToken = dbUser.RefreshToken
                             };
+
+                            await _accountService.RefreshToken(reqToken);
                         }
 
                     }
