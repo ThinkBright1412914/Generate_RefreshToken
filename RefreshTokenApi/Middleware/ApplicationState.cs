@@ -53,13 +53,17 @@ namespace RefreshTokenApi.Middleware
 
                         if (dbUser != null)
                         {
-                            Token reqToken = new Token
+                            if(DateTime.Now >= dbUser.TokenExpiryDate)
                             {
-                                AccessToken = dbUser.AccessToken,
-                                RefreshToken = dbUser.RefreshToken
-                            };
+                                Token reqToken = new Token
+                                {
+                                    AccessToken = dbUser.AccessToken,
+                                    RefreshToken = dbUser.RefreshToken
+                                };
 
-                            await _accountService.RefreshToken(reqToken);
+                                await _accountService.RefreshToken(reqToken);
+                            }
+                           
                         }
 
                     }
